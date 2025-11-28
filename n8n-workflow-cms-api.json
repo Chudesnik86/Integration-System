@@ -1,0 +1,165 @@
+{
+  "name": "CMS API Integration - n8n Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "spares",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "spares-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "studentId",
+              "name": "studentId",
+              "value": "={{ $json.body?.studentId || $json.studentId || 9 }}",
+              "type": "number"
+            },
+            {
+              "id": "page",
+              "name": "page",
+              "value": "={{ $json.body?.page || $json.page || 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "size",
+              "name": "size",
+              "value": "={{ $json.body?.size || $json.size || 10 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-node",
+      "name": "Extract Parameters",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "=http://212.237.219.35:8080/students/{{ $json.studentId }}/cms/spares",
+        "authentication": "none",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "={{ $json.page }}"
+            },
+            {
+              "name": "size",
+              "value": "={{ $json.size }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json",
+              "fullResponse": false
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "http-node",
+      "name": "HTTP Request to CMS API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем все элементы из предыдущей ноды\nconst items = $input.all();\n\n// Если HTTP Request вернул массив как один элемент, извлекаем его\nlet result = [];\n\nif (items.length === 1 && Array.isArray(items[0].json)) {\n  // Массив уже в json поле\n  result = items[0].json;\n} else if (items.length === 1 && items[0].json && Array.isArray(items[0].json.data)) {\n  // Массив в поле data\n  result = items[0].json.data;\n} else {\n  // Разбитый массив - собираем обратно\n  result = items.map(item => item.json);\n}\n\n// Возвращаем массив как массив элементов\nreturn result.map(item => ({ json: item }));"
+      },
+      "id": "code-node",
+      "name": "Process Array",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $input.all().map(item => item.json) }}",
+        "options": {}
+      },
+      "id": "respond-node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Parameters": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request to CMS API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request to CMS API": {
+      "main": [
+        [
+          {
+            "node": "Process Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Array": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

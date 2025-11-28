@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все детали - Student ID: <%= studentId %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">Все детали</h1>
+                <div class="student-badge">Student ID: <span><%= studentId %></span></div>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="container">
+                <div class="page-header">
+                    <a href="/" class="btn-back">← На главную</a>
+                    <div class="page-info">
+                        <p>Всего деталей: <strong><%= total %></strong></p>
+                        <% if (totalPages > 1) { %>
+                            <p>Страница <strong><%= page %></strong> из <strong><%= totalPages %></strong></p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <section class="table-section">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Код</th>
+                                    <th>Название</th>
+                                    <th>Описание</th>
+                                    <th>Тип</th>
+                                    <th>Статус</th>
+                                    <th>Цена</th>
+                                    <th>Кол-во</th>
+                                    <th>Обновлено</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (spares.length > 0) { %>
+                                    <% spares.forEach(spare => { %>
+                                        <tr>
+                                            <td><code><%= spare.spare_code %></code></td>
+                                            <td><%= spare.spare_name %></td>
+                                            <td class="description-cell"><%= spare.spare_description || '-' %></td>
+                                            <td><span class="badge"><%= spare.spare_type %></span></td>
+                                            <td><span class="status-badge status-<%= spare.spare_status.toLowerCase() %>"><%= spare.spare_status %></span></td>
+                                            <td><%= spare.price || '-' %></td>
+                                            <td><%= spare.quantity || '-' %></td>
+                                            <td><%= spare.updated_at || '-' %></td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="8" class="empty-state">Нет данных</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <% if (totalPages > 1) { %>
+                        <div class="pagination">
+                            <% if (page > 1) { %>
+                                <a href="/spares?page=<%= page - 1 %>" class="btn-secondary">← Предыдущая</a>
+                            <% } %>
+                            <span class="page-info">Страница <%= page %> из <%= totalPages %></span>
+                            <% if (page < totalPages) { %>
+                                <a href="/spares?page=<%= page + 1 %>" class="btn-secondary">Следующая →</a>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

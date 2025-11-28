@@ -1,0 +1,26 @@
+{
+  "name": "integration-system",
+  "version": "1.0.0",
+  "description": "Integration system using Node.js",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "sync": "node app.js",
+    "server": "node server.js",
+    "init-db": "node init-db.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "pg": "^8.11.3"
+  },
+  "keywords": [
+    "integration",
+    "cms",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC"
+}
